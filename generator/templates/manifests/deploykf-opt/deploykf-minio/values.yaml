@@ -235,9 +235,23 @@ minio:
        {{<- $user_policy := tmpl.Exec "kubeflow_pipelines.object_store.user.minio_policy" (dict "edit_profiles" $edit_profiles "view_profiles" $view_profiles "bucket_name" $bucket_name) | yaml >}}
 
        {{<- /* add the extra statements for this user, if present */ ->}}
+       {{<- $groups_id_mapping_json := tmpl.Exec "runtime/deploykf_profiles__groups_id_mapping_json" | json >}}
        {{<- range $statement := $extraStatements >}}
-         {{<- if eq ($statement.user | conv.ToString) ($user_id | conv.ToString) >}}
-           {{<- $user_policy = tmpl.Exec "deploykf_minio_policies.append_to_user" (dict "prev_policy" $user_policy "statements" $statement.statements) | yaml >}}
+         {{<- if (index $statement "user") >}}
+           {{<- if eq ($statement.user | conv.ToString) ($user_id | conv.ToString) >}}
+             {{<- $user_policy = tmpl.Exec "deploykf_minio_policies.append_to_user" (dict "prev_policy" $user_policy "statements" $statement.statements) | yaml >}}
+           {{<- end >}}
+         {{<- end >}}
+         {{<- if (index $statement "group") >}}
+           {{<- range $group_name, $users := $groups_id_mapping_json >}}
+             {{<- if eq $statement.group $group_name >}}
+               {{<- range $user := $users >}}
+                 {{<- if eq $user.id $user_id >}}
+                   {{<- $user_policy = tmpl.Exec "deploykf_minio_policies.append_to_user" (dict "prev_policy" $user_policy "statements" $statement.statements) | yaml >}}
+                 {{<- end >}}
+               {{<- end >}}
+             {{<- end >}}
+           {{<- end >}}
          {{<- end >}}
        {{<- end >}}
        {{<- /* add the minio policy to the list of policies */ ->}}
