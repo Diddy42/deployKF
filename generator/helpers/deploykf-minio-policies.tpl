@@ -1,5 +1,5 @@
 ##
-## A template for a MinIO policy YAML that takes a policy and a list of statements and appends the statements to the policy.
+## Takes a MinIO policy and a list of additional statements as input and appends the statements to the policy.
 ## - USAGE: `$policy_yaml := tmpl.Exec "deploykf_minio_policies.append_to_user" (dict "prev_policy" $prev_policy dict "statements" $statements)`
 ##
 {{<- define "deploykf_minio_policies.append_to_user" ->}}
