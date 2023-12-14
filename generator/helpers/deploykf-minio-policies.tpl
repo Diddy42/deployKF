@@ -5,7 +5,7 @@
 {{<- define "deploykf_minio_policies.append_to_user" ->}}
 {{<- $statements := .statements >}}
 {{<- $prev_policy := .prev_policy >}}
-Version: {{< $prev_policy.Version >}}
+Version: "2012-10-17"
 Statement:
 {{<- range $statement := $statements >}}
 - Effect: {{< $statement.Effect >}}
